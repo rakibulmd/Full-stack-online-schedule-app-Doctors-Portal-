@@ -34,10 +34,7 @@ const Footer = () => {
                     </div>
                 </div>
                 <div className="py-10 text-center mt-5">
-                    <p>
-                        Copyright © 2022 - All right reserved by ACME Industries
-                        Ltd
-                    </p>
+                    <p>Copyright © 2022 - All right reserved</p>
                 </div>
             </footer>
         </div>
