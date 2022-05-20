@@ -1,41 +1,81 @@
 import React from "react";
+import auth from "../../firebase.init";
 import {
     useSignInWithGoogle,
-    useSignInWithEmailAndPassword,
+    useCreateUserWithEmailAndPassword,
+    useSendEmailVerification,
+    useUpdateProfile,
 } from "react-firebase-hooks/auth";
-import auth from "../../firebase.init";
 import { useForm } from "react-hook-form";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-const Login = () => {
-    const location = useLocation();
-    const navigate = useNavigate();
-    let from = location.state?.from.pathname || "/";
+const Register = () => {
     const [signInWithGoogle, googleUser, googleLoading, googleError] =
         useSignInWithGoogle(auth);
-    const [signInWithEmailAndPassword, user, loading, error] =
-        useSignInWithEmailAndPassword(auth);
+    const [createUserWithEmailAndPassword, user, loading, error] =
+        useCreateUserWithEmailAndPassword(auth);
+    const [sendEmailVerification, sending, verificationError] =
+        useSendEmailVerification(auth);
+    const [updateProfile, updating, updateError] = useUpdateProfile(auth);
     const {
         register,
         handleSubmit,
         watch,
         formState: { errors },
     } = useForm();
+    const navigate = useNavigate();
     const onSubmit = (data) => {
-        signInWithEmailAndPassword(data.email, data.password);
+        const displayName = data.name;
+        async function register() {
+            await createUserWithEmailAndPassword(data.email, data.password);
+            await sendEmailVerification();
+            await updateProfile({ displayName });
+            navigate("/appointment");
+        }
+        register();
     };
-    if (googleUser || user) {
-        navigate(from, { replace: true });
-    }
+    // if (googleUser || user) {
+    //     console.log(googleUser, user);
+    // }
     return (
         <div className="flex justify-center items-center h-screen">
             <div className="card w-96 bg-base-100 shadow-xl">
                 <div className="card-body">
                     <h2 className="text-center text-2xl font-bold text-secondary">
-                        Login
+                        Register to Doctors Portal
                     </h2>
                     <div>
                         <form onSubmit={handleSubmit(onSubmit)}>
+                            <div>
+                                <label className="label">
+                                    <span className="label-text">Name</span>
+                                </label>
+                                <input
+                                    className="input input-bordered input-accent w-full max-w-xs"
+                                    placeholder="Your name"
+                                    {...register("name", {
+                                        required: {
+                                            value: true,
+                                            message: "Name is required!",
+                                        },
+                                        minLength: {
+                                            value: 3,
+                                            message:
+                                                "Name minimum 3 characters",
+                                        },
+                                    })}
+                                />
+                                {errors.name?.type === "minLength" && (
+                                    <span className="text-rose-600">
+                                        {errors.name?.message}
+                                    </span>
+                                )}
+                                {errors.name?.type === "required" && (
+                                    <span className="text-rose-600">
+                                        {errors.name?.message}
+                                    </span>
+                                )}
+                            </div>
                             <div>
                                 <label className="label">
                                     <span className="label-text">Email</span>
@@ -101,7 +141,7 @@ const Login = () => {
                                 </span>
                             )}
 
-                            {loading ? (
+                            {loading || updating ? (
                                 <button className="btn loading w-full mt-5 text-white">
                                     loading
                                 </button>
@@ -109,17 +149,17 @@ const Login = () => {
                                 <input
                                     className="btn bg-accent w-full mt-5 text-white"
                                     type="submit"
-                                    value="Log In"
+                                    value="Register"
                                 />
                             )}
                         </form>
                         <p>
-                            New to Doctors Portal?{" "}
+                            Already registered?{" "}
                             <Link
-                                to="/register"
+                                to="/login"
                                 className="text-blue-700 underline"
                             >
-                                Create an account
+                                Log In here
                             </Link>
                         </p>
                     </div>
@@ -147,4 +187,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default Register;
