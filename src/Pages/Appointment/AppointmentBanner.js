@@ -14,7 +14,6 @@ const AppointmentBanner = ({ date, setDate }) => {
                     alt=""
                 />
                 <div>
-                    <h1 class="text-5xl font-bold">Box Office News!</h1>
                     <DayPicker
                         mode="single"
                         selected={date}
