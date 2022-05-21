@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
     useSignInWithGoogle,
     useSignInWithEmailAndPassword,
@@ -24,9 +24,11 @@ const Login = () => {
     const onSubmit = (data) => {
         signInWithEmailAndPassword(data.email, data.password);
     };
-    if (googleUser || user) {
-        navigate(from, { replace: true });
-    }
+    useEffect(() => {
+        if (googleUser || user) {
+            navigate(from, { replace: true });
+        }
+    }, [user, from, location, googleUser, navigate]);
     return (
         <div className="flex justify-center items-center h-screen">
             <div className="card w-96 bg-base-100 shadow-xl">
